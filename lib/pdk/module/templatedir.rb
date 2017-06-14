@@ -1,4 +1,6 @@
 require 'yaml'
+require 'pathname'
+
 require 'pdk/util'
 require 'pdk/cli/exec'
 require 'pdk/cli/errors'
@@ -186,10 +188,12 @@ module PDK
       #
       # @api private
       def files_in_template
+        moduleroot_path = Pathname.new(@moduleroot_dir)
+
         @files ||= Dir.glob(File.join(@moduleroot_dir, "**", "*"), File::FNM_DOTMATCH).select { |template_path|
           File.file?(template_path) && !File.symlink?(template_path)
         }.map { |template_path|
-          template_path.sub(/\A#{Regexp.escape(@moduleroot_dir)}#{Regexp.escape(File::SEPARATOR)}/, '')
+          Pathname.new(template_path).relative_path_from(moduleroot_path).to_s
         }
       end
 
